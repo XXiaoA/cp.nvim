@@ -48,6 +48,13 @@ end
 function MAIN:show_ui()
     self.wins.main, self.wins.expect, self.wins.output, self.wins.input = config.ui.main()
 
+    if config.ui.winbar_in_main then
+        self.wins.main:set_opt({ win = { winbar = "main" } })
+        self.wins.expect:set_opt({ win = { winbar = "expect" } })
+        self.wins.output:set_opt({ win = { winbar = "output" } })
+        self.wins.input:set_opt({ win = { winbar = "input" } })
+    end
+
     for _, win in pairs(self.wins) do
         -- for modifier mainly
         vim.b[win.buf].cp_attached = self.buf

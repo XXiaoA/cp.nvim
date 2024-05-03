@@ -25,8 +25,9 @@ local defaults = {
         input_format = "$(FILENOEXT)_$(TCID).in",
         expect_format = "$(FILENOEXT)_$(TCID).out",
     },
-
     ui = {
+        -- whether the winbar should be shown in the main window
+        winbar_in_main = true,
         main = function()
             vim.o.equalalways = false
             local original_win = api.nvim_get_current_win()
