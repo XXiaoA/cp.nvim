@@ -6,20 +6,22 @@ local M = {}
 M.opts = {}
 local defaults = {
     run = {
-        -- where should the executable be
-        compile_dir = "$(FILEDIR)/build/$(FILENOEXT)",
         command = {
             cpp = {
+                -- use a table format
                 compile = { cmd = "g++", args = { "-Wall", "$(FILEFULL)", "-o", "$(FILEDIR)/build/$(FILENOEXT)" } },
                 exec = { cmd = "$(FILEDIR)/build/$(FILENOEXT)" },
             },
             python = {
-                exec = { cmd = "python", args = { "$(FILEFULL)" } },
+                -- or just a string
+                exec = "python $(FILEFULL)",
+                -- which is equal to
+                -- exec = { cmd = "python", args = { "$(FILEFULL)" } },
             },
         },
     },
     testcases = {
-        -- where may the testcase be
+        -- where should the testcase be
         dir = "$(FILEDIR)/build/",
         -- both of them need have $(TCID)
         input_format = "$(FILENOEXT)_$(TCID).in",
@@ -31,18 +33,18 @@ local defaults = {
         main = function()
             vim.o.equalalways = false
             local original_win = api.nvim_get_current_win()
-            local tc = window:new("vs", { width = utils.get_resolution(0.47).width })
-            local ep = window:new("sp")
-            local op = window:new("sp")
+            local main = window:new("vertical botright sp", { width = utils.get_resolution(0.47).width })
+            local expect = window:new("rightbelow sp")
+            local output = window:new("rightbelow sp")
             vim.cmd("wincmd 2k")
-            local ip = window:new("vs")
-            for _, win in pairs({ tc, ep, op, ip }) do
+            local input = window:new("vertical rightbelow sp")
+            for _, win in pairs({ main, expect, output, input }) do
                 win:set_opt({ win = { wfh = true, wfw = true } })
             end
             api.nvim_set_current_win(original_win)
             vim.o.equalalways = true
-            api.nvim_set_current_win(tc.win)
-            return tc, ep, op, ip
+            api.nvim_set_current_win(main.win)
+            return main, expect, output, input
         end,
 
         ---@param id number the id of the testcase
@@ -73,6 +75,7 @@ local defaults = {
             return input, expect
         end,
 
+        -- use the tabpage if you want
         -- editor = function()
         --     local input = window:new("tabnew")
         --     local expect = window:new("vs")
@@ -85,6 +88,21 @@ local defaults = {
 function M.setup(opts)
     opts = opts or {}
     M.opts = vim.tbl_deep_extend("force", defaults, opts)
+
+    -- transform the string type command to table
+    for lang, config in pairs(M.opts.run.command) do
+        for kind, command in pairs(config) do
+            if type(command) == "string" then
+                local parts = vim.split(command, "%s+")
+                local cmd = table.remove(parts, 1)
+                local args = parts
+                M.opts.run.command[lang][kind] = {
+                    cmd = cmd,
+                    args = args,
+                }
+            end
+        end
+    end
 end
 
 return M

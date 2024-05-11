@@ -19,6 +19,7 @@ function WINDOW:new(mode, config)
             rnu = false,
             list = false,
             wfb = true,
+            wrap = false,
         },
         buf_opts = {
             filetype = "cp",
@@ -38,9 +39,6 @@ function WINDOW:new(mode, config)
         end
         o.win = api.nvim_open_win(0, enter, config)
     else
-        -- api.nvim_buf_call(0, function()
-        --     vim.cmd(mode)
-        -- end)
         vim.cmd(mode)
         o.win = api.nvim_get_current_win()
         if config.width then
@@ -127,7 +125,12 @@ function WINDOW:autocmd(event, callback)
 end
 
 function WINDOW:keymap(mode, lhs, rhs, opts)
-    vim.keymap.set(mode, lhs, rhs, vim.tbl_extend("force", { buffer = self.buf }, opts or {}))
+    if type(lhs) == "string" then
+        lhs = { lhs }
+    end
+    for _, l in ipairs(lhs) do
+        vim.keymap.set(mode, l, rhs, vim.tbl_extend("force", { buffer = self.buf }, opts or {}))
+    end
 end
 
 return WINDOW

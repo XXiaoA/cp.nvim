@@ -13,31 +13,30 @@ local function get_testcase_id(context)
     return tonumber(context:match(pattern))
 end
 
+---@param buf number 0 for current buffer
 ---@return MAIN
-function MAIN:new()
+function MAIN:new(buf)
+    buf = buf == 0 and api.nvim_get_current_buf() or buf
     -- each main ui is attached to a specific buffer
     local o = {
-        buf = api.nvim_get_current_buf(),
+        _show = false, -- whether the ui is shown
+        buf = buf,
         compilable = 0,
         wins = {
             main = nil, -- including compile and test case
-            input = nil, -- input
-            output = nil, -- output
             expect = nil, -- expectation
+            output = nil, -- output
+            input = nil, -- input
         },
         testcases = {},
     }
 
-    local lang = api.nvim_get_option_value("filetype", { buf = self.buf })
+    local lang = vim.bo[buf].filetype
     local lang_config = config.run.command[lang]
-    if not lang_config then
-        vim.notify("cp.nvim: No `run.command` config for filetype: " .. lang, vim.log.levels.WARN)
-    else
-        if lang_config.compile then
-            o.compilable = 1
-            -- duration is in millisecond (uv.now())
-            o.testcases[1] = { id = 0, kind = "Compile", status = "NONE", duration = nil }
-        end
+    if lang_config.compile then
+        o.compilable = 1
+        -- duration is in millisecond (uv.now())
+        o.testcases[1] = { id = 0, kind = "Compile", status = "NONE", duration = nil }
     end
 
     setmetatable(o, self)
@@ -47,6 +46,8 @@ end
 
 function MAIN:show_ui()
     self.wins.main, self.wins.expect, self.wins.output, self.wins.input = config.ui.main()
+
+    self._show = true
 
     if config.ui.winbar_in_main then
         self.wins.main:set_opt({ win = { winbar = "main" } })
@@ -92,6 +93,7 @@ function MAIN:show_ui()
 end
 
 function MAIN:close_ui()
+    self._show = false
     for _, win in pairs(self.wins) do
         api.nvim_win_close(win.win, true)
     end
@@ -168,7 +170,7 @@ function MAIN:compile(callback)
         return
     end
 
-    local lang = api.nvim_get_option_value("filetype", { buf = self.buf })
+    local lang = vim.bo[self.buf].filetype
     local lang_config = config.run.command[lang]
     local exec = modifier.convert(lang_config.compile.cmd)
     local args = {}
@@ -199,7 +201,7 @@ function MAIN:compile(callback)
 end
 
 function MAIN:execute(id)
-    local lang = api.nvim_get_option_value("filetype", { buf = self.buf })
+    local lang = vim.bo[self.buf].filetype
 
     local exec = modifier.convert(config.run.command[lang].exec.cmd)
     local args = {}

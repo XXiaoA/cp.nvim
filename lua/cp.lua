@@ -1,24 +1,56 @@
+local api = vim.api
 local config = require("cp.config")
 local M = {}
 
----@type MAIN[]
+---@type MAIN[] the indenx is the buffer id
 local CP = {}
 
 function M.setup(opts)
     config.setup(opts)
 
-    vim.api.nvim_create_user_command("Cp", function(ctx)
+    api.nvim_create_user_command("Cp", function(ctx)
         local arg = ctx.args
-        local buf = vim.api.nvim_get_current_buf()
+        local buf = api.nvim_get_current_buf()
         if vim.b[buf].cp_attached then
             buf = vim.b[buf].cp_attached
         end
-        if arg == "run" then
-            if not CP[buf] then
-                CP[buf] = require("cp.main"):new()
+
+        local lang = vim.bo[buf].filetype
+        local lang_config = config.opts.run.command[lang]
+        if not lang_config then
+            vim.notify("cp.nvim: No `run.command` config for filetype: " .. lang, vim.log.levels.ERROR)
+            return
+        end
+
+        if not CP[buf] then
+            CP[buf] = require("cp.main"):new(buf)
+            CP[buf]:load_testcases()
+        end
+        if arg == "" then
+            if not CP[buf]._show then
+                CP[buf]:show_ui()
+            else
+                api.nvim_set_current_win(CP[buf].wins.main.win)
+            end
+        elseif arg == "toggle" then
+            if not CP[buf]._show then
+                CP[buf]:show_ui()
+            else
+                CP[buf]:close_ui()
+            end
+        elseif arg == "show" then
+            if not CP[buf]._show then
+                CP[buf]:show_ui()
+            end
+        elseif arg == "hide" then
+            if CP[buf]._show then
+                CP[buf]:close_ui()
+            end
+        elseif arg == "run" then
+            if not CP[buf]._show then
+                CP[buf]:show_ui()
             end
             CP[buf]:load_testcases()
-            CP[buf]:show_ui()
             if CP[buf].compilable == 1 then
                 CP[buf]:compile(function()
                     CP[buf]:excute_all()
@@ -28,13 +60,16 @@ function M.setup(opts)
             end
         elseif arg == "add_testcase" then
             CP[buf]:create_testcase(true)
+            if CP[buf]._show then
+                CP[buf]:show_testcases()
+            end
         else
             vim.notify("cp.nvim: No command " .. ctx.args)
         end
     end, {
-        nargs = 1,
+        nargs = "*",
         complete = function(arg)
-            local list = { "run", "add_testcase" }
+            local list = { "run", "add_testcase", "toggle", "show", "hide" }
             return vim.tbl_filter(function(s)
                 return string.match(s, "^" .. arg)
             end, list)

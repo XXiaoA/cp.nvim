@@ -75,23 +75,18 @@ function M.editor_ui(buf, tc_id)
     for mode, win in pairs({ input = input_win, expect = expect_win }) do
         win:set_opt({ buf = { modifiable = true } })
 
-        win:keymap("n", "q", function()
+        win:keymap("n", { "q", "<ESC>", "<C-c>" }, function()
             vim.cmd("q")
         end)
-        win:keymap("i", "<C-s>", function()
-            vim.cmd("q | stopinsert")
+        win:keymap({ "n", "i" }, { "<C-l>", "<C-h>" }, function()
+            _jumping = true
+            if api.nvim_get_current_win() == input_win.win then
+                api.nvim_set_current_win(expect_win.win)
+            else
+                api.nvim_set_current_win(input_win.win)
+            end
+            _jumping = false
         end)
-        for _, lhs in ipairs({ "<C-l>", "<C-h>" }) do
-            win:keymap({ "n", "i" }, lhs, function()
-                _jumping = true
-                if api.nvim_get_current_win() == input_win.win then
-                    api.nvim_set_current_win(expect_win.win)
-                else
-                    api.nvim_set_current_win(input_win.win)
-                end
-                _jumping = false
-            end)
-        end
 
         win:autocmd({ "TextChanged", "InsertLeave" }, function(ctx)
             local content = api.nvim_buf_get_lines(ctx.buf, 0, -1, false)
