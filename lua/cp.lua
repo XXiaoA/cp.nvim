@@ -2,7 +2,7 @@ local api = vim.api
 local config = require("cp.config")
 local M = {}
 
----@type MAIN[] the indenx is the buffer id
+---@type MAIN[] the index is the buffer id
 local CP = {}
 
 function M.setup(opts)
@@ -53,7 +53,10 @@ function M.setup(opts)
             CP[buf]:load_testcases()
             if CP[buf].compilable == 1 then
                 CP[buf]:compile(function()
-                    CP[buf]:excute_all()
+                    -- only execute all when compiled successfully
+                    if CP[buf].testcases[1].status == "DONE" then
+                        CP[buf]:excute_all()
+                    end
                 end)
             else
                 CP[buf]:excute_all()
