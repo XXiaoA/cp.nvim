@@ -5,7 +5,7 @@ local modifier = require("cp.modifier")
 local config = require("cp.config").opts
 local runner = require("cp.runner")
 
----@class MAIN
+---@class CpMain
 local MAIN = {}
 
 local function get_testcase_id(context)
@@ -14,7 +14,7 @@ local function get_testcase_id(context)
 end
 
 ---@param buf number 0 for current buffer
----@return MAIN
+---@return CpMain
 function MAIN:new(buf)
     buf = buf == 0 and api.nvim_get_current_buf() or buf
     -- each main ui is attached to a specific buffer
