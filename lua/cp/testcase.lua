@@ -44,7 +44,7 @@ function M.editor_ui(buf, tc_id)
         buf = api.nvim_get_current_buf()
     end
     ---@type WINDOW, WINDOW
-    local input_win, expect_win = config.ui.editor(tc_id)
+    local input_win, expect_win = config.testcases.editor(tc_id)
     local _jumping = false -- prevent closing ui while jumping between input and expect windows
 
     -- NOTE: set the cp_attached before the modifier.convert() !!!

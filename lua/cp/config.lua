@@ -26,27 +26,8 @@ local defaults = {
         -- both of them need have $(TCID)
         input_format = "$(FILENOEXT)_$(TCID).in",
         expect_format = "$(FILENOEXT)_$(TCID).out",
-    },
-    ui = {
-        -- whether the winbar should be shown in the main window
-        winbar_in_main = true,
-        main = function()
-            vim.o.equalalways = false
-            local original_win = api.nvim_get_current_win()
-            local main = window:new("vertical botright sp", { width = utils.get_resolution(0.47).width })
-            local expect = window:new("rightbelow sp")
-            local output = window:new("rightbelow sp")
-            vim.cmd("wincmd 2k")
-            local input = window:new("vertical rightbelow sp")
-            for _, win in pairs({ main, expect, output, input }) do
-                win:set_opt({ win = { wfh = true, wfw = true } })
-            end
-            api.nvim_set_current_win(original_win)
-            vim.o.equalalways = true
-            api.nvim_set_current_win(main.win)
-            return main, expect, output, input
-        end,
 
+        -- ui while editing the testcase
         ---@param id number the id of the testcase
         editor = function(id)
             local height = utils.get_resolution().height
@@ -74,7 +55,6 @@ local defaults = {
             -- stylua: ignore end
             return input, expect
         end,
-
         -- use the tabpage if you want
         -- editor = function()
         --     local input = window:new("tabnew")
@@ -82,6 +62,27 @@ local defaults = {
         --     api.nvim_set_current_win(input.win)
         --     return input, expect
         -- end,
+    },
+    -- the main ui area of the plugin
+    main = {
+        -- whether the winbar should be shown in the main window
+        winbar = true,
+        ui = function()
+            vim.o.equalalways = false
+            local original_win = api.nvim_get_current_win()
+            local main = window:new("vertical botright sp", { width = utils.get_resolution(0.47).width })
+            local expect = window:new("rightbelow sp")
+            local output = window:new("rightbelow sp")
+            vim.cmd("wincmd 2k")
+            local input = window:new("vertical rightbelow sp")
+            for _, win in pairs({ main, expect, output, input }) do
+                win:set_opt({ win = { wfh = true, wfw = true } })
+            end
+            api.nvim_set_current_win(original_win)
+            vim.o.equalalways = true
+            api.nvim_set_current_win(main.win)
+            return main, expect, output, input
+        end,
     },
 }
 

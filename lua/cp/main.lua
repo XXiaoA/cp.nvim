@@ -45,11 +45,11 @@ function MAIN:new(buf)
 end
 
 function MAIN:show_ui()
-    self.wins.main, self.wins.expect, self.wins.output, self.wins.input = config.ui.main()
+    self.wins.main, self.wins.expect, self.wins.output, self.wins.input = config.main.ui()
 
     self._show = true
 
-    if config.ui.winbar_in_main then
+    if config.main.winbar then
         self.wins.main:set_opt({ win = { winbar = "main" } })
         self.wins.expect:set_opt({ win = { winbar = "expect" } })
         self.wins.output:set_opt({ win = { winbar = "output" } })
