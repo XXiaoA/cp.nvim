@@ -14,7 +14,7 @@
 	<a href="https://github.com/XXiaoA/cp.nvim/issues">
 		<img alt="Issues" src="https://img.shields.io/github/issues/XXiaoA/cp.nvim?style=for-the-badge&logo=bilibili&color=F5E0DC&logoColor=D9E0EE&labelColor=302D41"></a>
 	<a href="https://github.com/XXiaoA/cp.nvim">
-		<img alt="Repo Size" src="https://img.shields.io/github/repo-size/XXiaoA/cp.nvim?color=%23DDB6F2&label=SIZE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41"/></a>
+		<img alt="License" src="https://img.shields.io/github/license/XXiaoA/cp.nvim?color=%23DDB6F2&label=LICENSE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41"/></a>
 </p>
 
 ## TODO
