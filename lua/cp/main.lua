@@ -8,7 +8,8 @@ local runner = require("cp.runner")
 ---@class CpMain
 local MAIN = {}
 
-local function get_testcase_id(context)
+local function get_testcase_id()
+    local context = api.nvim_get_current_line()
     local pattern = "Test%s+(%d+)"
     return tonumber(context:match(pattern))
 end
@@ -60,11 +61,33 @@ function MAIN:show_ui()
         -- for modifier mainly
         vim.b[win.buf].cp_attached = self.buf
 
-        for _, lhs in ipairs({ "q", "<C-w>c", "<C-w>q" }) do
-            win:keymap("n", lhs, function()
-                self:close_ui()
+        win:keymap("n", { "q", "<C-w>c", "<C-w>q" }, function()
+            self:close_ui()
+        end)
+        win:keymap("n", "r", function()
+            self:execute(get_testcase_id())
+        end)
+        win:keymap("n", "R", function()
+            require("cp").subcommands.run.impl(_, _)
+        end)
+        win:keymap("n", "a", function()
+            self:create_testcase(true)
+            self:show_testcases()
+        end)
+        win:keymap("n", "d", function()
+            -- TODO: implement it
+        end)
+        win:keymap("n", "e", function()
+            local id = get_testcase_id()
+            local testcase = self.testcases[id + self.compilable]
+            tc_mod.editor_ui(self.buf, id, function(data)
+                testcase.input = data.input
+                testcase.expect = data.expect
+                testcase.status = "NONE"
+                testcase.duration = nil
+                self:show_testcases()
             end)
-        end
+        end)
     end
 
     self:show_testcases()
@@ -73,8 +96,7 @@ function MAIN:show_ui()
         if vim.tbl_isempty(self.testcases) then
             return
         end
-        local line = api.nvim_get_current_line()
-        local testcase_id = get_testcase_id(line) or 0
+        local testcase_id = get_testcase_id()
         local testcase = self.testcases[testcase_id + self.compilable]
 
         -- show the compile information

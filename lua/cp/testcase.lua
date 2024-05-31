@@ -39,7 +39,8 @@ end
 --- show the input ui
 ---@param buf number 0 for current buffer
 ---@param tc_id number testcase id
-function M.editor_ui(buf, tc_id)
+---@param callback function? invoke when the ui is closed
+function M.editor_ui(buf, tc_id, callback)
     if not buf or buf == 0 then
         buf = api.nvim_get_current_buf()
     end
@@ -101,6 +102,9 @@ function M.editor_ui(buf, tc_id)
             if _jumping == false then
                 api.nvim_win_close(input_win.win, true)
                 api.nvim_win_close(expect_win.win, true)
+                if callback then
+                    callback({ input = input_content, expect = expect_content })
+                end
             end
         end)
 
