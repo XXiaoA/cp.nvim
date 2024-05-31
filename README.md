@@ -1,4 +1,4 @@
-# disclaimer: EVERYTHING is not ready now
+# DISCLAIMER: NOTHING IS READY FOR NOW
 
 <p align="center">
   <h2 align="center">cp.nvim</h2>
@@ -17,18 +17,19 @@
 		<img alt="License" src="https://img.shields.io/github/license/XXiaoA/cp.nvim?color=%23DDB6F2&label=LICENSE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41"/></a>
 </p>
 
+## Q&A
+**Q**: What's the difference between [competitest.nvim](https://github.com/xeluxee/competitest.nvim)? Should I switch to cp.nvim?
+
+**A:** There are lot of differences between the two. Just give cp.nvim a try, and then you decide.
+
 ## TODO
 - [ ] refactor `modifier`. Now there are lots of redundent code. <br> see `rg modifier.convert.config.testcases`
 - [ ] ensure the directory exsists (like `config.compile.path`).
-- [ ] find the sort rule of testcases
 - [ ] find a better way to replace the `tcid`
 - [ ] diff mode
 - [ ] single file testcase
+- [ ] stress test
 
 ## Credits
-- [competitest.nvim](https://github.com/xeluxee/competitest.nvim)
-- [leetcode.nvim](https://github.com/kawre/leetcode.nvim)
-
-<!-- https://github.com/xeluxee/competitest.nvim/issues/6 -->
-<!-- https://github.com/xeluxee/competitest.nvim/issues/51 -->
-
+- Heavily inspired by [competitest.nvim](https://github.com/xeluxee/competitest.nvim)
+- Reference user commands implementation from [nvim-best-practices](https://github.com/nvim-neorocks/nvim-best-practices)
